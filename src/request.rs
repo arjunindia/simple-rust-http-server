@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 pub struct Request {
     pub method: String,
     pub path: String,
@@ -26,8 +28,12 @@ impl Request {
             };
             request.headers.push(header);
         }
-        request.body = string.split("\r\n\r\n").collect::<Vec<&str>>()[1]
+        request.body = string
+            .split_once("\r\n\r\n")
+            .unwrap()
+            .1
             .trim()
+            .trim_end_matches('\0') // removes those end escape characters - been debugging for hours :(
             .as_bytes()
             .to_vec();
 
