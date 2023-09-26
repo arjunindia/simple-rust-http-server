@@ -37,12 +37,18 @@ fn accept_conn(stream: &mut TcpStream) -> Result<(), Box<dyn Error>> {
             if parsed_request.method == "POST" {
                 let mut file = File::create(format!("{dir}{filename}"))?;
                 match file.write_all(&parsed_request.body) {
-                    Ok(()) => ("201 Created", "application/octet-stream", "".to_string()),
-                    Err(err) => (
-                        "500 Server Error",
-                        "application/octet-stream",
-                        err.to_string(),
-                    ),
+                    Ok(()) => {
+                        file.flush().unwrap();
+                        ("201 Created", "application/octet-stream", "".to_string())
+                    }
+                    Err(err) => {
+                        file.flush().unwrap();
+                        (
+                            "500 Server Error",
+                            "application/octet-stream",
+                            err.to_string(),
+                        )
+                    }
                 }
             } else {
                 let mut file = File::open(format!("{dir}{filename}"))?;
@@ -50,6 +56,7 @@ fn accept_conn(stream: &mut TcpStream) -> Result<(), Box<dyn Error>> {
                 match file.read_to_string(&mut contents) {
                     Ok(_) => {
                         let trimmed_contents = contents.to_string();
+                        file.flush().unwrap();
                         println!("{contents},{}", trimmed_contents.len());
                         (
                             "200 Ok",
@@ -57,11 +64,14 @@ fn accept_conn(stream: &mut TcpStream) -> Result<(), Box<dyn Error>> {
                             trimmed_contents.to_string(),
                         )
                     }
-                    Err(err) => (
-                        "500 Server Error",
-                        "application/octet-stream",
-                        err.to_string(),
-                    ),
+                    Err(err) => {
+                        file.flush().unwrap();
+                        (
+                            "500 Server Error",
+                            "application/octet-stream",
+                            err.to_string(),
+                        )
+                    }
                 }
             }
         } else {
