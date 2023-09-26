@@ -1,5 +1,3 @@
-use itertools::Itertools;
-
 pub struct Request {
     pub method: String,
     pub path: String,
