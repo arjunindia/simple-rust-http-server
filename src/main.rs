@@ -55,7 +55,7 @@ fn accept_conn(stream: &mut TcpStream) -> Result<(), Box<dyn Error>> {
             ("404 Not Found", "text/plain", String::from(""))
         };
         let resp = format!(
-            "HTTP/1.1 {}\r\nContent-Type: {}\r\nContent-length:{}\r\n\r\n{}",
+            "HTTP/1.1 {}\r\nContent-Type: {}\r\nContent-Length:{}\r\n\r\n{}",
             status,
             ctype,
             body.len(),
