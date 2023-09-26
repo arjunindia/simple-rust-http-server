@@ -46,7 +46,7 @@ fn accept_conn(stream: &mut TcpStream) -> Result<(), Box<dyn Error>> {
             } else {
                 let contents = fs::read_to_string(format!("{dir}{filename}"))
                     .expect("Should have been able to read the file");
-
+                println!("{contents},{}", contents.len());
                 ("200 Ok", "application/octet-stream", contents)
             }
         } else {

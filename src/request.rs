@@ -31,7 +31,6 @@ impl Request {
         request.body = string.split("\r\n\r\n").collect::<Vec<&str>>()[1]
             .as_bytes()
             .to_vec();
-        println!("{:?},{}", request.body, request.body.len());
 
         request
     }
