@@ -11,7 +11,7 @@ use std::{
 
 fn accept_conn(stream: &mut TcpStream) -> Result<(), Box<dyn Error>> {
     println!("connected");
-    let mut stream_buffer = [0; 1024];
+    let mut stream_buffer = [0; 2048];
     stream.read(&mut stream_buffer).unwrap();
     let request = str::from_utf8(&stream_buffer).unwrap();
     let parsed_request = Request::parse(request);
