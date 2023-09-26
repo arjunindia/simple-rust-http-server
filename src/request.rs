@@ -28,7 +28,9 @@ impl Request {
             };
             request.headers.push(header);
         }
-        request.body = string.split("\r\n\r\n").collect::<Vec<&str>>()[1].to_string();
+        request.body = string.split("\r\n\r\n").collect::<Vec<&str>>()[1]
+            .trim()
+            .to_string();
         println!("{},{}", request.body, request.body.len());
 
         request
