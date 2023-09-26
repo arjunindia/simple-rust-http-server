@@ -31,7 +31,7 @@ impl Request {
             .unwrap()
             .1
             .trim()
-            .trim_end_matches('\0') // removes those end escape characters - been debugging for hours :(
+            .trim_end_matches('\0') // removes those end escape characters - had to debug for hours :(
             .as_bytes()
             .to_vec();
 
