@@ -46,8 +46,13 @@ fn accept_conn(stream: &mut TcpStream) -> Result<(), Box<dyn Error>> {
             } else {
                 match fs::read_to_string(format!("{dir}{filename}")) {
                     Ok(contents) => {
-                        println!("{contents},{}", contents.len());
-                        ("200 Ok", "application/octet-stream", contents)
+                        let trimmed_contents = contents.trim();
+                        println!("{contents},{}", trimmed_contents.len());
+                        (
+                            "200 Ok",
+                            "application/octet-stream",
+                            trimmed_contents.to_string(),
+                        )
                     }
                     Err(err) => (
                         "500 Server Error",
