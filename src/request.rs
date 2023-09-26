@@ -20,7 +20,7 @@ impl Request {
         for (_, line) in req_lines[1..].iter().enumerate() {
             let header = match line.split_once(":") {
                 Some(val) => (String::from(val.0), String::from(val.1.trim())),
-                None => ("".to_owned(), "".to_owned()),
+                None => ("".into(), "".into()),
             };
             request.headers.push(header);
         }
