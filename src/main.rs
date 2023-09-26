@@ -23,23 +23,19 @@ fn accept_conn(stream: &mut TcpStream) -> Result<(), Box<dyn Error>> {
             .write("HTTP/1.1 200 OK\r\n\r\n".as_bytes())
             .expect("unable to write to stream");
     } else {
-        let path_parts = parsed_request.path.split('/').collect::<Vec<&str>>();
-        let (status, ctype, body) = if path_parts[1] == "echo" {
-            if path_parts.len() > 1 {
-                ("200 OK", "text/plain", path_parts[2..].join("/"))
-            } else {
-                ("200 OK", "text/plain", String::from(""))
-            }
-        } else if path_parts[1] == "user-agent" {
+        let path = &parsed_request.path;
+        let (status, ctype, body) = if path.starts_with("/echo/") {
+            ("200 OK", "text/plain", path[6..].to_string())
+        } else if path.starts_with("/user-agent") {
             (
                 "200 OK",
                 "text/plain",
                 parsed_request.get_header("User-Agent"),
             )
-        } else if path_parts[1] == "files" {
+        } else if path.starts_with("/files/") {
             let dir = env::args().nth(2).unwrap_or(".".into());
-            let filename = path_parts[1..].join("");
-            println!("{dir}{filename}");
+            let filename = path[7..].to_string();
+            println!("{dir}/{filename}");
             let contents = fs::read_to_string(format!("{dir}{filename}"))
                 .expect("Should have been able to read the file");
 
@@ -68,16 +64,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         "Server started at: http://{}",
         listener.local_addr().unwrap()
     );
-
-    // Arc for safe thread data sharing - I have no idea how this works
-    let listener = Arc::new(listener);
     for stream in listener.incoming() {
         match stream {
             Ok(mut _stream) => {
-                let listener = listener.clone(); // Pointer to arc
                 handles.push(thread::spawn(move || {
-                    accept_conn(&mut _stream).unwrap();
-                    drop(listener);
+                    accept_conn(&mut _stream).unwrap_or_else(|e| {
+                        eprintln!("error: {}", e);
+                    });
                 }));
             }
             Err(e) => println!("error: {}", e),
