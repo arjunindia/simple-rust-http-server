@@ -39,6 +39,7 @@ fn accept_conn(stream: &mut TcpStream) -> Result<(), Box<dyn Error>> {
         } else if path_parts[1] == "files" {
             let dir = env::args().nth(2).unwrap_or(".".into());
             let filename = path_parts[1..].join("");
+            println!("{dir}{filename}");
             let contents = fs::read_to_string(format!("{dir}{filename}"))
                 .expect("Should have been able to read the file");
 
