@@ -19,14 +19,14 @@ impl Request {
 
         for (_, line) in req_lines[1..].iter().enumerate() {
             let header = match line.split_once(":") {
-                Some(val) => (String::from(val.0), String::from(val.1)),
+                Some(val) => (String::from(val.0), String::from(val.1.trim())),
                 None => ("".to_owned(), "".to_owned()),
             };
             request.headers.push(header);
         }
         request
     }
-    pub fn getHeader(&self, name: &str) -> String {
+    pub fn get_header(&self, name: &str) -> String {
         for header in self.headers.iter() {
             if header.0 == name.to_owned() {
                 return header.1.clone();

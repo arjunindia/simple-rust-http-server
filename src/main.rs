@@ -26,7 +26,7 @@ fn accept_conn(mut stream: TcpStream) -> Result<(), Box<dyn Error>> {
                 ("200 OK", String::from(""))
             }
         } else if path_parts[1] == "user-agent" {
-            ("200 OK", parsed_request.getHeader("User-Agent"))
+            ("200 OK", parsed_request.get_header("User-Agent"))
         } else {
             ("404 Not Found", String::from(""))
         };
