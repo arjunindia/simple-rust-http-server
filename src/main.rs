@@ -1,6 +1,6 @@
 mod request;
 use crate::request::Request;
-use std::fs;
+use std::fs::{self, File};
 use std::io::prelude::*;
 use std::{env, thread};
 use std::{
@@ -35,14 +35,9 @@ fn accept_conn(stream: &mut TcpStream) -> Result<(), Box<dyn Error>> {
             let dir = env::args().nth(2).unwrap_or(".".into());
             let filename = path[7..].to_string();
             if parsed_request.method == "POST" {
-                match fs::write(format!("{dir}{filename}"), parsed_request.body) {
-                    Ok(()) => ("201 Created", "application/octet-stream", "".to_string()),
-                    Err(err) => (
-                        "500 Server Error",
-                        "application/octet-stream",
-                        err.to_string(),
-                    ),
-                }
+                let mut file = File::create(format!("{dir}{filename}"))?;
+                std::io::copy(stream, &mut file)?;
+                ("201 Created", "application/octet-stream", "".to_string())
             } else {
                 match fs::read_to_string(format!("{dir}{filename}")) {
                     Ok(contents) => {
