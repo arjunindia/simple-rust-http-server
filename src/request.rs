@@ -4,7 +4,7 @@ pub struct Request {
     pub method: String,
     pub path: String,
     pub headers: Vec<Header>,
-    pub body: String,
+    pub body: Vec<u8>,
 }
 type Header = (String, String);
 impl Request {
@@ -13,7 +13,7 @@ impl Request {
             method: String::new(),
             path: String::new(),
             headers: Vec::new(),
-            body: String::new(),
+            body: Vec::new(),
         };
         let req_lines = string.split("\r\n").collect::<Vec<&str>>();
         let first_line = req_lines.first().unwrap();
@@ -29,9 +29,9 @@ impl Request {
             request.headers.push(header);
         }
         request.body = string.split("\r\n\r\n").collect::<Vec<&str>>()[1]
-            .trim()
-            .to_string();
-        println!("{},{}", request.body, request.body.len());
+            .as_bytes()
+            .to_vec();
+        println!("{:?},{}", request.body, request.body.len());
 
         request
     }
