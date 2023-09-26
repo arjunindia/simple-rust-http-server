@@ -16,7 +16,7 @@ fn accept_conn(mut stream: TcpStream) -> Result<(), Box<dyn Error>> {
         .first()
         .unwrap()
         .to_owned();
-    println!("{}", first_line);
+    print!("{}", first_line);
     let first_line_parts = first_line.split_whitespace().collect::<Vec<&str>>();
     match first_line_parts[1] {
         "/" => {
@@ -24,9 +24,26 @@ fn accept_conn(mut stream: TcpStream) -> Result<(), Box<dyn Error>> {
                 .write("HTTP/1.1 200 OK\r\n\r\n".as_bytes())
                 .expect("unable to write to stream");
         }
-        _ => {
+        req => {
+            let path_parts = req.split('/').collect::<Vec<&str>>();
+            let (status, body) = if path_parts[1] == "echo" {
+                if path_parts.len() > 1 {
+                    ("200 OK", path_parts[2..].join("/"))
+                } else {
+                    ("200 OK", String::from(""))
+                }
+            } else {
+                ("404 Not Found", String::from(""))
+            };
+            let resp = format!(
+                "HTTP/1.1 {}\r\n\r\nContent-Type: text/plain\r\nContent-length:{}\r\n\r\n{}",
+                status,
+                body.len(),
+                body
+            );
+            println!(" {}", status);
             stream
-                .write("HTTP/1.1 404 Not Found\r\n\r\n".as_bytes())
+                .write(resp.as_bytes())
                 .expect("unable to write to stream");
         }
     }
