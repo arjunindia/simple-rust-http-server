@@ -1,6 +1,7 @@
 mod request;
 use crate::request::Request;
 use std::io::prelude::*;
+use std::thread;
 use std::{
     error::Error,
     net::{TcpListener, TcpStream},
@@ -54,7 +55,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     for stream in listener.incoming() {
         match stream {
             Ok(_stream) => {
-                accept_conn(_stream)?;
+                thread::spawn(|| {
+                    accept_conn(_stream).unwrap_or(println!("error accepting connections"))
+                });
             }
             Err(e) => println!("error: {}", e),
         }
