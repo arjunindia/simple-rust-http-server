@@ -2,7 +2,6 @@ mod request;
 use crate::request::Request;
 use std::fs;
 use std::io::prelude::*;
-use std::sync::Arc;
 use std::{env, thread};
 use std::{
     error::Error,
@@ -35,11 +34,21 @@ fn accept_conn(stream: &mut TcpStream) -> Result<(), Box<dyn Error>> {
         } else if path.starts_with("/files/") {
             let dir = env::args().nth(2).unwrap_or(".".into());
             let filename = path[7..].to_string();
-            println!("{dir}/{filename}");
-            let contents = fs::read_to_string(format!("{dir}{filename}"))
-                .expect("Should have been able to read the file");
+            if parsed_request.method == "POST" {
+                match fs::write(format!("{dir}{filename}"), parsed_request.body) {
+                    Ok(()) => ("201 Created", "application/octet-stream", "".to_string()),
+                    Err(err) => (
+                        "500 Server Error",
+                        "application/octet-stream",
+                        err.to_string(),
+                    ),
+                }
+            } else {
+                let contents = fs::read_to_string(format!("{dir}{filename}"))
+                    .expect("Should have been able to read the file");
 
-            ("200 Ok", "application/octet-stream", contents)
+                ("200 Ok", "application/octet-stream", contents)
+            }
         } else {
             ("404 Not Found", "text/plain", String::from(""))
         };

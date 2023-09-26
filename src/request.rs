@@ -1,7 +1,10 @@
+use itertools::Itertools;
+
 pub struct Request {
     pub method: String,
     pub path: String,
     pub headers: Vec<Header>,
+    pub body: String,
 }
 type Header = (String, String);
 impl Request {
@@ -10,6 +13,7 @@ impl Request {
             method: String::new(),
             path: String::new(),
             headers: Vec::new(),
+            body: String::new(),
         };
         let req_lines = string.split("\r\n").collect::<Vec<&str>>();
         let first_line = req_lines.first().unwrap();
@@ -24,6 +28,8 @@ impl Request {
             };
             request.headers.push(header);
         }
+        request.body = string.split("\r\n\r\n").collect_vec()[1].into();
+
         request
     }
     pub fn get_header(&self, name: &str) -> String {
